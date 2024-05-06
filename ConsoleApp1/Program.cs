@@ -15,13 +15,13 @@ class Programm
         string subject = "";        //set your mail title
         string body = "";           //set your mail body
 
-        string[] addresses = File.ReadAllLines("");
+        string[] addresses = File.ReadAllLines("");  //using for sent multiple addresses
         SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
         client.EnableSsl = true;
         client.Credentials = new NetworkCredential(username, pass);
 
         int emailCount = 0;
-        List<string> sentAddresses = new List<string>();   //using for sent multiple addresses
+        List<string> sentAddresses = new List<string>();
         Console.Write($"Emails sent: {emailCount}");
         Console.WriteLine();
 
