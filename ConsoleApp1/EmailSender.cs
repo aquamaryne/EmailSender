@@ -9,66 +9,85 @@ using System.Collections.Generic;
 
 class Programm
 {
+    private const string GmailUsernameKey = "GmailUsername";
+    private const string GmailPasswordKey = "GmailPassword";
+    private const string EmailSubject = "EmailSubject";
+    private const string EmailBodyKey = "EmailBody";
+    private const string AddressFilePathKey = "AddressFilePath";
+    private const string AttachmentFilePathAway = "AttachmnetFilePath";
+
+    private const string SmtpServer = "smtp.gmail.com";
+    private const int smtpPort = 587;
+
     static void Main(string[] args)
     {
-        string username = GetConfigValue("GmailUsername");
-        string password = GetConfigValue("GmailPassword");
-        string subject = GetConfigValue("EmailSubject");
-        string body = GetConfigValue("EmailBody");
-        string addressesFilePath = GetConfigValue("AddressFilePath");
+        Console.WriteLine("Enter your Gmail username: ");
+        string username = Console.ReadLine();
+
+        Console.WriteLine("Enter your Gmail password: ");
+        string password = Console.ReadLine();
+
+        Console.WriteLine("Enter the mail subject: ");
+        string subject = Console.ReadLine();
+
+        Console.WriteLine("Enter the mail body: ");
+        string body = Console.ReadLine();
+
+        Console.WriteLine("Enter the address file path (CSV file): ");
+        string addressesFilePath = Console.ReadLine();
+
+        Console.WriteLine("Enter the attachment file path (optinal)");
+        string attachmentFilePath = Console.ReadLine();
+
+
+        if(string.IsNullOrEmpty(username) 
+            || string.IsNullOrEmpty(password) 
+            || string.IsNullOrEmpty(subject) 
+            || string.IsNullOrEmpty(body) 
+            || string.IsNullOrEmpty(attachmentFilePath) 
+            || string.IsNullOrEmpty(addressesFilePath))
+        {
+            Console.WriteLine("Please enter all required values. ");
+            return;
+        }
 
         string[] addresses = ReadAddressFromCsv(addressesFilePath);
-
-        SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
-        client.EnableSsl = true;
-        client.Credentials = new NetworkCredential(username, password);
-
-        int emailCount = 0;
-        List<string> sentAddresses = new List<string>();
-
-        Console.Write($"Emails sent: {emailCount}");
-        Console.WriteLine();
-
-        foreach(string address in addresses)
+        
+        using(SmtpClient client = new SmtpClient("smtp.gmail.com", 587))
         {
-            try
-            {
-                MailMessage message = CreateEmailMessage(username, address, subject, body, GetConfigValue("AttachmentFilePath"));
+            client.EnableSsl = true;
+            client.Credentials = new NetworkCredential(username, password);
 
-                client.Send(message);
-                emailCount++;
-                sentAddresses.Add(address);
-                Console.SetCursorPosition(0, 0);
-                Console.Write($"Emails sent to: {emailCount}; ");
-                Console.WriteLine("");
-                foreach(string sentAddress in sentAddresses)
-                {
-                    Console.Write($" - {sentAddress}");
-                }
-            }
-            catch(Exception ex)
+            int emailCount = 0;
+            List<string> sentAddresses = new List<string>();
+
+            Console.WriteLine($"Emails sent: {emailCount}; ");
+            Console.WriteLine();
+
+            foreach(string address in addresses)
             {
-                Console.WriteLine("Error sending mail to " + address + ": " + ex.Message);
+                try
+                {
+                    MailMessage message = CreateEmailMessage(username, address, subject, body, attachmentFilePath);
+
+                    client.Send(message);
+                    emailCount++;
+                    sentAddresses.Add(address);
+                    Console.SetCursorPosition(0, 0);
+                    Console.Write($"Emails sent to: {emailCount}; ");
+                    Console.WriteLine("");
+                    foreach (string sentAddress in sentAddresses)
+                    {
+                        Console.WriteLine($" - {sentAddress}");
+                    }
+                }
+                catch (SmtpException ex) { Console.WriteLine($"Error sending mail {address}: {ex.Message}"); }
             }
 
             Thread.Sleep(2000);
         }
     }
 
-    static string GetConfigValue(string key)
-    {
-        Dictionary<string, string> config = new Dictionary<string, string>()
-        {
-            {"GmailUsername", ""}, //set your google email
-            {"GmailPassword", ""}, //set your google pass
-            {"EmailSubject", ""},  //set your mail title
-            {"EmailBody", ""},     //set your mail message
-            {"AddressFilePath", "" }, //for using if you have multiple addresses in .csv file
-            {"AttachmentFilePath", ""}, //set your image or another file
-        };
-
-        return config[key];
-    }
     static string[] ReadAddressFromCsv(string filePath)
     {
         return File.ReadAllLines(filePath);
