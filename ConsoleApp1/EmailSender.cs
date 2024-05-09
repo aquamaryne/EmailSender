@@ -21,22 +21,22 @@ class Programm
 
     static void Main(string[] args)
     {
-        Console.WriteLine("Enter your Gmail username: ");
+        Console.Write("Enter your Gmail username: ");
         string username = Console.ReadLine();
-
-        Console.WriteLine("Enter your Gmail password: ");
+        
+        Console.Write("Enter your Gmail password: ");
         string password = Console.ReadLine();
-
-        Console.WriteLine("Enter the mail subject: ");
+        
+        Console.Write("Enter the mail subject: ");
         string subject = Console.ReadLine();
-
-        Console.WriteLine("Enter the mail body: ");
+        
+        Console.Write("Enter the mail body: ");
         string body = Console.ReadLine();
-
-        Console.WriteLine("Enter the address file path (CSV file): ");
+        
+        Console.Write("Enter the address file path (CSV file): ");
         string addressesFilePath = Console.ReadLine();
-
-        Console.WriteLine("Enter the attachment file path (optinal)");
+        
+        Console.Write("Enter the attachment file path (optinal)");
         string attachmentFilePath = Console.ReadLine();
 
 
