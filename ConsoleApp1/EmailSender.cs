@@ -23,28 +23,28 @@ class Programm
     {
         Console.Write("Enter your Gmail username: ");
         string username = Console.ReadLine();
-        
+
         Console.Write("Enter your Gmail password: ");
-        string password = Console.ReadLine();
-        
+        string password = ReadPassword();
+
         Console.Write("Enter the mail subject: ");
         string subject = Console.ReadLine();
-        
+
         Console.Write("Enter the mail body: ");
         string body = Console.ReadLine();
-        
+
         Console.Write("Enter the address file path (CSV file): ");
         string addressesFilePath = Console.ReadLine();
-        
-        Console.Write("Enter the attachment file path (optinal)");
+
+        Console.Write("Enter the attachment file path (optinal): ");
         string attachmentFilePath = Console.ReadLine();
 
 
-        if(string.IsNullOrEmpty(username) 
-            || string.IsNullOrEmpty(password) 
-            || string.IsNullOrEmpty(subject) 
-            || string.IsNullOrEmpty(body) 
-            || string.IsNullOrEmpty(attachmentFilePath) 
+        if (string.IsNullOrEmpty(username)
+            || string.IsNullOrEmpty(password)
+            || string.IsNullOrEmpty(subject)
+            || string.IsNullOrEmpty(body)
+            || string.IsNullOrEmpty(attachmentFilePath)
             || string.IsNullOrEmpty(addressesFilePath))
         {
             Console.WriteLine("Please enter all required values. ");
@@ -52,8 +52,8 @@ class Programm
         }
 
         string[] addresses = ReadAddressFromCsv(addressesFilePath);
-        
-        using(SmtpClient client = new SmtpClient("smtp.gmail.com", 587))
+
+        using (SmtpClient client = new SmtpClient("smtp.gmail.com", 587))
         {
             client.EnableSsl = true;
             client.Credentials = new NetworkCredential(username, password);
@@ -64,7 +64,7 @@ class Programm
             Console.WriteLine($"Emails sent: {emailCount}; ");
             Console.WriteLine();
 
-            foreach(string address in addresses)
+            foreach (string address in addresses)
             {
                 try
                 {
@@ -97,12 +97,37 @@ class Programm
     {
         MailMessage message = new MailMessage(from, to, subject, body);
 
-        if(!string.IsNullOrEmpty(addtachmentfilePath))
+        if (!string.IsNullOrEmpty(addtachmentfilePath))
         {
             Attachment attachment = new Attachment(addtachmentfilePath);
             message.Attachments.Add(attachment);
         }
 
         return message;
+    }
+
+    static string ReadPassword()
+    {
+        string password = "";
+        ConsoleKeyInfo key;
+        do
+        {
+            key = Console.ReadKey(true);
+
+            if(key.Key != ConsoleKey.Enter && key.Key != ConsoleKey.Backspace)
+            {
+                password += key.KeyChar;
+                Console.Write("*");
+            }
+            else if(key.Key == ConsoleKey.Backspace && password.Length > 0)
+            {
+                password = password.Substring(0, password.Length - 1);
+                Console.Write("\b \b");
+            }
+        } while (key.Key != ConsoleKey.Enter);
+
+        Console.WriteLine("");
+
+        return password;
     }
 }
